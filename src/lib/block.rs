@@ -4,14 +4,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
 pub struct Block {
-    timestamp: u128,
-    payload: Vec<u8>,
-    nonce: u64,
-    currenthash: String,
-    prevhash: String,
+    pub timestamp: u128,
+    pub payload: Vec<u8>,
+    pub nonce: u64,
+    pub currenthash: String,
+    pub prevhash: String,
 }
 
 impl Block {
+    /// create new blockchain neeeds a genesis block before this function call
     pub fn new(prevblock: Block, payload: Vec<u8>, req: u8) -> Self {
         let time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -28,6 +29,7 @@ impl Block {
         block.currenthash = currhash;
         Self::mine(block, req)
     }
+    /// create first ever block in a blockchain
     pub fn genesis(payload: Vec<u8>, req: u8) -> Self {
         let time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -44,7 +46,8 @@ impl Block {
         block.currenthash = currhash;
         Self::mine(block, req)
     }
-    fn hashblock(block: &Self) -> String {
+    /// hashes block
+    pub fn hashblock(block: &Self) -> String {
         let mut hasher = Sha256::new();
         let blockstring = format!(
             "{:#?}{:#?}{}{}",
@@ -53,6 +56,7 @@ impl Block {
         hasher.update(&blockstring);
         format!("{:X}", hasher.finalize())
     }
+    /// finds nonce for provided block and returns modified block
     fn mine(mut block: Self, req: u8) -> Block {
         fn check(hash: String, req: u8) -> bool {
             for i in 0..req {
